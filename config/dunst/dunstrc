@@ -1,0 +1,208 @@
+# ================================
+# CONFIGURACIÓN DE DUNST
+# ================================
+
+[global]
+    # Display
+    monitor = 0
+    follow = mouse
+    
+    # Geometry
+    width = 350
+    height = 300
+    origin = top-right
+    offset = 10x50
+    scale = 0
+    notification_limit = 5
+    
+    # Progress bar
+    progress_bar = true
+    progress_bar_height = 10
+    progress_bar_frame_width = 1
+    progress_bar_min_width = 150
+    progress_bar_max_width = 300
+    
+    # Appearance
+    transparency = 10
+    separator_height = 2
+    padding = 12
+    horizontal_padding = 12
+    text_icon_padding = 0
+    frame_width = 2
+    frame_color = "#89b4fa"
+    separator_color = frame
+    sort = yes
+    
+    # Text
+    font = JetBrains Mono Nerd Font 11
+    line_height = 0
+    markup = full
+    format = "<b>%s</b>\n%b"
+    alignment = left
+    vertical_alignment = center
+    show_age_threshold = 60
+    ellipsize = middle
+    ignore_newline = no
+    stack_duplicates = true
+    hide_duplicate_count = false
+    show_indicators = yes
+    
+    # Icons
+    icon_position = left
+    min_icon_size = 32
+    max_icon_size = 64
+    icon_path = /usr/share/icons/Papirus-Dark/16x16/status/:/usr/share/icons/Papirus-Dark/16x16/devices/:/usr/share/icons/Papirus-Dark/16x16/apps/
+    
+    # History
+    sticky_history = yes
+    history_length = 20
+    
+    # Misc/Advanced
+    dmenu = /usr/bin/rofi -dmenu -p dunst:
+    browser = /usr/bin/xdg-open
+    always_run_script = true
+    title = Dunst
+    class = Dunst
+    corner_radius = 10
+    ignore_dbusclose = false
+    
+    # Wayland
+    force_xwayland = false
+    
+    # Mouse
+    mouse_left_click = close_current
+    mouse_middle_click = do_action, close_current
+    mouse_right_click = close_all
+
+[experimental]
+    per_monitor_dpi = false
+
+# ================================
+# URGENCY LEVELS
+# ================================
+
+[urgency_low]
+    background = "#1e1e2e"
+    foreground = "#cdd6f4"
+    frame_color = "#89b4fa"
+    timeout = 5
+    default_icon = dialog-information
+
+[urgency_normal]
+    background = "#1e1e2e"
+    foreground = "#cdd6f4"
+    frame_color = "#89b4fa"
+    timeout = 10
+    default_icon = dialog-information
+
+[urgency_critical]
+    background = "#1e1e2e"
+    foreground = "#cdd6f4"
+    frame_color = "#f38ba8"
+    timeout = 0
+    default_icon = dialog-error
+
+# ================================
+# CUSTOM RULES
+# ================================
+
+[volume]
+    appname = "Volume"
+    urgency = low
+    timeout = 2
+    format = "<b>🔊 %s</b>\n%b"
+
+[brightness]
+    appname = "Brightness"
+    urgency = low
+    timeout = 2
+    format = "<b>☀️ %s</b>\n%b"
+
+[battery]
+    appname = "Battery"
+    urgency = normal
+    timeout = 10
+    format = "<b>🔋 %s</b>\n%b"
+
+[network]
+    appname = "Network"
+    urgency = normal
+    timeout = 5
+    format = "<b>🌐 %s</b>\n%b"
+
+[vpn]
+    appname = "VPN"
+    urgency = normal
+    timeout = 5
+    format = "<b>🔒 %s</b>\n%b"
+    frame_color = "#a6e3a1"
+
+[gaming]
+    appname = "GameMode"
+    urgency = low
+    timeout = 3
+    format = "<b>🎮 %s</b>\n%b"
+    frame_color = "#f9e2af"
+
+[updates]
+    appname = "Updates"
+    urgency = normal
+    timeout = 15
+    format = "<b>📦 %s</b>\n%b"
+    frame_color = "#fab387"
+
+[screenshot]
+    appname = "Screenshot"
+    urgency = low
+    timeout = 3
+    format = "<b>📸 %s</b>\n%b"
+    frame_color = "#cba6f7"
+
+[spotify]
+    appname = "Spotify"
+    urgency = low
+    timeout = 5
+    format = "<b>🎵 %s</b>\n%b"
+    frame_color = "#a6e3a1"
+
+# Steam notifications
+[steam]
+    appname = "Steam"
+    urgency = low
+    timeout = 5
+    format = "<b>🎮 Steam</b>\n%b"
+
+# Discord notifications
+[discord]
+    appname = "discord"
+    urgency = normal
+    timeout = 8
+    format = "<b>💬 Discord</b>\n%b"
+
+# Email notifications
+[email]
+    appname = "*mail*"
+    urgency = normal
+    timeout = 10
+    format = "<b>📧 %s</b>\n%b"
+
+# System notifications
+[system]
+    appname = "System"
+    urgency = critical
+    timeout = 0
+    format = "<b>⚠️ %s</b>\n%b"
+    frame_color = "#f38ba8"
+
+# Package manager notifications
+[pacman]
+    appname = "pacman"
+    urgency = normal
+    timeout = 10
+    format = "<b>📦 Package Manager</b>\n%b"
+
+[yay]
+    appname = "yay"
+    urgency = normal
+    timeout = 10
+    format = "<b>📦 AUR Helper</b>\n%b"

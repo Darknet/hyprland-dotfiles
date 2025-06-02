@@ -1,0 +1,192 @@
+# Makefile para gestión de templates de proyectos
+.PHONY: help init update validate clean install test lint format
+
+# Variables
+SCRIPTS_DIR := scripts
+TEMPLATES_DIR := .
+PROJECT_NAME ?= mi-proyecto
+PROJECT_TYPE ?= python-basic
+
+# Colores para output
+GREEN := \033[0;32m
+YELLOW := \033[1;33m
+RED := \033[0;31m
+NC := \033[0m
+
+# Ayuda por defecto
+help: ## Mostrar esta ayuda
+	@echo "🚀 Gestión de Templates de Proyectos"
+	@echo ""
+	@echo "Uso: make [target] [variables]"
+	@echo ""
+	@echo "Targets disponibles:"
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  $(GREEN)%-15s$(NC) %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@echo ""
+	@echo "Variables:"
+	@echo "  PROJECT_NAME   Nombre del proyecto (default: mi-proyecto)"
+	@echo "  PROJECT_TYPE   Tipo de proyecto (default: python-basic)"
+	@echo ""
+	@echo "Ejemplos:"
+	@echo "  make init PROJECT_NAME=mi-api PROJECT_TYPE=nodejs-basic"
+	@echo "  make validate PROJECT_NAME=mi-proyecto"
+
+init: ## Inicializar nuevo proyecto
+	@echo "$(GREEN)🚀 Inicializando proyecto $(PROJECT_NAME) de tipo $(PROJECT_TYPE)$(NC)"
+	@chmod +x $(SCRIPTS_DIR)/init-project.sh
+	@$(SCRIPTS_DIR)/init-project.sh $(PROJECT_TYPE) $(PROJECT_NAME) --git --install
+
+init-simple: ## Inicializar proyecto sin Git ni dependencias
+	@echo "$(GREEN)🚀 Inicializando proyecto simple $(PROJECT_NAME)$(NC)"
+	@chmod +x $(SCRIPTS_DIR)/init-project.sh
+	@$(SCRIPTS_DIR)/init-project.sh $(PROJECT_TYPE) $(PROJECT_NAME)
+
+update: ## Actualizar templates desde repositorio
+	@echo "$(GREEN)🔄 Actualizando templates$(NC)"
+	@chmod +x $(SCRIPTS_DIR)/update-templates.sh
+	@$(SCRIPTS_DIR)/update-templates.sh
+
+validate: ## Validar proyecto generado
+	@echo "$(GREEN)🔍 Validando proyecto $(PROJECT_NAME)$(NC)"
+	@chmod +x $(SCRIPTS_DIR)/validate-project.sh
+	@$(SCRIPTS_DIR)/validate-project.sh $(PROJECT_NAME)
+
+clean: ## Limpiar archivos temporales
+	@echo "$(YELLOW)🧹 Limpiando archivos temporales$(NC)"
+	@find . -name "*.pyc" -delete
+	@find . -name "__pycache__" -type d -exec rm -rf {} + 2>/dev/null || true
+	@find . -name "node_modules" -type d -exec rm -rf {} + 2>/dev/null || true
+	@find . -name ".DS_Store" -delete 2>/dev/null || true
+	@find . -name "*.log" -delete 2>/dev/null || true
+	@echo "$(GREEN)✅ Limpieza completada$(NC)"
+
+install: ## Instalar herramientas necesarias
+	@echo "$(GREEN)📦 Instalando herramientas$(NC)"
+	@if command -v brew >/dev/null 2>&1; then \
+		echo "Instalando con Homebrew..."; \
+		brew install kubectl docker git node python3; \
+	elif command -v apt-get >/dev/null 2>&1; then \
+		echo "Instalando con apt..."; \
+		sudo apt-get update && sudo apt-get install -y kubectl docker.io git nodejs npm python3 python3-pip; \
+	elif command -v yum >/dev/null 2>&1; then \
+		echo "Instalando con yum..."; \
+		sudo yum install -y kubectl docker git nodejs npm python3 python3-pip; \
+	else \
+		echo "$(RED)❌ Gestor de paquetes no soportado$(NC)"; \
+	fi
+
+test: ## Ejecutar tests de los templates
+	@echo "$(GREEN)🧪 Ejecutando tests$(NC)"
+	@for template in python-basic nodejs-basic react-basic; do \
+		echo "Probando template: $$template"; \
+		rm -rf test-$$template; \
+		$(SCRIPTS_DIR)/init-project.sh $$template test-$$template; \
+		$(SCRIPTS_DIR)/validate-project.sh test-$$template; \
+		rm -rf test-$$template; \
+	done
+	@echo "$(GREEN)✅ Tests completados$(NC)"
+
+lint: ## Verificar sintaxis de archivos
+	@echo "$(GREEN)🔍 Verificando sintaxis$(NC)"
+	@echo "Verificando scripts bash..."
+	@find $(SCRIPTS_DIR) -name "*.sh" -exec shellcheck {} \; || echo "$(YELLOW)⚠️  shellcheck no disponible$(NC)"
+	@echo "Verificando archivos YAML..."
+	@find . -name "*.yml" -o -name "*.yaml" | head -10 | xargs -I {} sh -c 'python3 -c "import yaml; yaml.safe_load(open(\"{}\"))" && echo "✅ {}" || echo "❌ {}"' 2>/dev/null || echo "$(YELLOW)⚠️  PyYAML no disponible$(NC)"
+	@echo "Verificando archivos JSON..."
+	@find . -name "*.json" | head -10 | xargs -I {} sh -c 'python3 -c "import json; json.load(open(\"{}\"))" && echo "✅ {}" || echo "❌ {}"' 2>/dev/null || true
+
+format: ## Formatear archivos de código
+	@echo "$(GREEN)🎨 Formateando código$(NC)"
+	@if command -v prettier >/dev/null 2>&1; then \
+		echo "Formateando con Prettier..."; \
+		find . -name "*.json" -o -name "*.yml" -o -name "*.yaml" | head -20 | xargs prettier --write; \
+	else \
+		echo "$(YELLOW)⚠️  Prettier no disponible$(NC)"; \
+	fi
+	@if command -v black >/dev/null 2>&1; then \
+		echo "Formateando Python con Black..."; \
+		find . -name "*.py" | head -20 | xargs black --line-length 88; \
+	else \
+		echo "$(YELLOW)⚠️  Black no disponible$(NC)"; \
+	fi
+
+list: ## Listar templates disponibles
+	@echo "$(GREEN)📋 Templates disponibles:$(NC)"
+	@ls -1 $(TEMPLATES_DIR) | grep -v scripts | grep -v Makefile | sed 's/^/  - /'
+
+info: ## Mostrar información del sistema
+	@echo "$(GREEN)ℹ️  Información del sistema:$(NC)"
+	@echo "OS: $$(uname -s)"
+	@echo "Arquitectura: $$(uname -m)"
+	@echo "Shell: $$SHELL"
+	@echo ""
+	@echo "$(GREEN)🛠️  Herramientas instaladas:$(NC)"
+	@command -v git >/dev/null 2>&1 && echo "✅ Git: $$(git --version)" || echo "❌ Git no instalado"
+	@command -v docker >/dev/null 2>&1 && echo "✅ Docker: $$(docker --version)" || echo "❌ Docker no instalado"
+	@command -v kubectl >/dev/null 2>&1 && echo "✅ Kubectl: $$(kubectl version --client --short 2>/dev/null)" || echo "❌ Kubectl no instalado"
+	@command -v node >/dev/null 2>&1 && echo "✅ Node.js: $$(node --version)" || echo "❌ Node.js no instalado"
+	@command -v python3 >/dev/null 2>&1 && echo "✅ Python: $$(python3 --version)" || echo "❌ Python no instalado"
+	@command -v java >/dev/null 2>&1 && echo "✅ Java: $$(java -version 2>&1 | head -n1)" || echo "❌ Java no instalado"
+
+backup: ## Crear backup de templates
+	@echo "$(GREEN)💾 Creando backup$(NC)"
+	@mkdir -p backups
+	@tar -czf backups/templates-backup-$$(date +%Y%m%d-%H%M%S).tar.gz \
+		--exclude='backups' \
+		--exclude='.git' \
+		--exclude='node_modules' \
+		--exclude='__pycache__' \
+		.
+	@echo "$(GREEN)✅ Backup creado en backups/$(NC)"
+
+restore: ## Restaurar desde backup (usar BACKUP_FILE=archivo.tar.gz)
+	@if [ -z "$(BACKUP_FILE)" ]; then \
+		echo "$(RED)❌ Especifica BACKUP_FILE=archivo.tar.gz$(NC)"; \
+		exit 1; \
+	fi
+	@echo "$(YELLOW)⚠️  Restaurando desde $(BACKUP_FILE)$(NC)"
+	@tar -xzf $(BACKUP_FILE)
+	@echo "$(GREEN)✅ Restauración completada$(NC)"
+
+stats: ## Mostrar estadísticas de templates
+	@echo "$(GREEN)📊 Estadísticas de templates:$(NC)"
+	@echo "Total de templates: $$(ls -1 $(TEMPLATES_DIR) | grep -v scripts | grep -v Makefile | wc -l)"
+	@echo "Archivos por template:"
+	@for dir in $$(ls -1 $(TEMPLATES_DIR) | grep -v scripts | grep -v Makefile); do \
+		if [ -d "$$dir" ]; then \
+			count=$$(find "$$dir" -type f | wc -l); \
+			echo "  $$dir: $$count archivos"; \
+		fi \
+	done
+	@echo ""
+	@echo "Tipos de archivo más comunes:"
+	@find . -name "*.py" -o -name "*.js" -o -name "*.json" -o -name "*.yml" -o -name "*.yaml" -o -name "*.md" | \
+		sed 's/.*\.//' | sort | uniq -c | sort -nr | head -10
+
+check-deps: ## Verificar dependencias del sistema
+	@echo "$(GREEN)🔍 Verificando dependencias$(NC)"
+	@deps="git docker kubectl node python3 java gradle"; \
+	missing=""; \
+	for dep in $$deps; do \
+		if ! command -v $$dep >/dev/null 2>&1; then \
+			missing="$$missing $$dep"; \
+		fi \
+	done; \
+	if [ -n "$$missing" ]; then \
+		echo "$(RED)❌ Dependencias faltantes:$$missing$(NC)"; \
+		echo "$(YELLOW)💡 Ejecuta 'make install' para instalarlas$(NC)"; \
+	else \
+		echo "$(GREEN)✅ Todas las dependencias están instaladas$(NC)"; \
+	fi
+
+dev-setup: ## Configurar entorno de desarrollo
+	@echo "$(GREEN)🛠️  Configurando entorno de desarrollo$(NC)"
+	@chmod +x $(SCRIPTS_DIR)/*.sh
+	@if [ ! -f .git/hooks/pre-commit ]; then \
+		echo "Instalando pre-commit hook..."; \
+		echo '#!/bin/bash\nmake lint' > .git/hooks/pre-commit; \
+		chmod +x .git/hooks/pre-commit; \
+	fi
+	@echo "$(GREEN)✅ Entorno configurado$(NC)"
+
+# Target por defecto
+.DEFAULT_GOAL := help

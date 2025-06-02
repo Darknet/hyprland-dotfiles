@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: default
+  labels:
+    app: mi-app
+data:
+  application.yml: |
+    server:
+      port: 8080
+      servlet:
+        context-path: /
+    
+    management:
+      server:
+        port: 8081
+      endpoints:
+        web:
+          exposure:
+            include: health,info,metrics,prometheus
+      endpoint:
+        health:
+          show-details: always
+    
+    spring:
+      application:
+        name: mi-app
+      profiles:
+        active: kubernetes
+      
+      datasource:
+        hikari:
+          maximum-pool-size: 10
+          minimum-idle: 5
+          connection-timeout: 30000
+          idle-timeout: 600000
+          max-lifetime: 1800000
+      
+      jpa:
+        hibernate:
+          ddl-auto: validate
+        show-sql: false
+        properties:
+          hibernate:
+            dialect: org.hibernate.dialect.PostgreSQLDialect
+            format_sql: true
+    
+    logging:
+      level:
+        com.ejemplo: INFO
+        org.springframework: WARN
+        org.hibernate: WARN
+      pattern:
+        console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+        file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+      file:
+        name: /app/logs/application.log
+        max-size: 100MB
+        max-history: 30
+
+  redis.url: "redis://redis-service:6379"
+  cache.ttl: "3600"
+  api.timeout: "30000"
+  feature.flags: |
+    new-feature: true
+    beta-feature: false
+    maintenance-mode: false

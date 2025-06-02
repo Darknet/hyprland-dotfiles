@@ -1,0 +1,83 @@
+FROM mcr.microsoft.com/devcontainers/base:ubuntu
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y \
+    curl \
+    wget \
+    git \
+    vim \
+    nano \
+    tree \
+    jq \
+    unzip \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar Node.js
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs
+
+# Instalar Python y pip
+RUN apt-get update && apt-get install -y \
+    python3 \
+    python3-pip \
+    python3-venv \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar Docker CLI
+RUN curl -fsSL https://get.docker.com | sh
+
+# Instalar kubectl
+RUN curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl" \
+    && install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl \
+    && rm kubectl
+
+# Instalar Helm
+RUN curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | tee /usr/share/keyrings/helm.gpg > /dev/null \
+    && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | tee /etc/apt/sources.list.d/helm-stable-debian.list \
+    && apt-get update \
+    && apt-get install helm \
+    && rm -rf /var/lib/apt/lists/*
+
+# Instalar herramientas adicionales
+RUN npm install -g \
+    prettier \
+    eslint \
+    @vue/cli \
+    create-react-app \
+    express-generator
+
+# Instalar herramientas Python
+RUN pip3 install \
+    black \
+    flake8 \
+    pytest \
+    django \
+    flask \
+    fastapi \
+    requests
+
+# Instalar shellcheck
+RUN apt-get update && apt-get install -y shellcheck && rm -rf /var/lib/apt/lists/*
+
+# Configurar usuario
+ARG USERNAME=vscode
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && apt-get update \
+    && apt-get install -y sudo \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME \
+    && rm -rf /var/lib/apt/lists/*
+
+USER $USERNAME
+
+# Configurar Git (será sobrescrito por el usuario)
+RUN git config --global init.defaultBranch main \
+    && git config --global user.name "Developer" \
+    && git config --global user.email "dev@example.com"
+
+WORKDIR /workspace

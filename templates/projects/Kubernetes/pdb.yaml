@@ -1,0 +1,12 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: mi-app-pdb
+  namespace: default
+  labels:
+    app: mi-app
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: mi-app

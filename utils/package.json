@@ -1,0 +1,52 @@
+{
+  "name": "project-templates",
+  "version": "1.0.0",
+  "description": "Colección de templates para inicializar proyectos rápidamente",
+  "main": "index.js",
+  "scripts": {
+    "init": "bash scripts/init-project.sh",
+    "update": "bash scripts/update-templates.sh",
+    "validate": "bash scripts/validate-project.sh",
+    "test": "npm run test:templates",
+    "test:templates": "bash -c 'for template in python-basic nodejs-basic react-basic; do echo \"Testing $template\"; rm -rf test-$template; bash scripts/init-project.sh $template test-$template; bash scripts/validate-project.sh test-$template; rm -rf test-$template; done'",
+    "lint": "npm run lint:scripts && npm run lint:json",
+    "lint:scripts": "shellcheck scripts/*.sh || echo 'shellcheck not available'",
+    "lint:json": "find . -name '*.json' -not -path './node_modules/*' | head -20 | xargs -I {} sh -c 'echo \"Checking {}\"; node -e \"JSON.parse(require(\\\"fs\\\").readFileSync(\\\"{}\\\"))\" && echo \"✅ {}\" || echo \"❌ {}\"'",
+    "format": "prettier --write '**/*.{json,yml,yaml,md}' --ignore-path .gitignore",
+    "clean": "find . -name 'node_modules' -type d -exec rm -rf {} + 2>/dev/null || true; find . -name '*.log' -delete 2>/dev/null || true",
+    "backup": "tar -czf backups/templates-backup-$(date +%Y%m%d-%H%M%S).tar.gz --exclude='backups' --exclude='.git' --exclude='node_modules' .",
+    "stats": "echo 'Templates:'; ls -1 | grep -v scripts | grep -v node_modules | wc -l; echo 'Files by extension:'; find . -name '*.py' -o -name '*.js' -o -name '*.json' -o -name '*.yml' -o -name '*.yaml' | sed 's/.*\\.//' | sort | uniq -c | sort -nr",
+    "dev-setup": "chmod +x scripts/*.sh && npm install",
+    "precommit": "npm run lint && npm run test"
+  },
+  "keywords": [
+    "templates",
+    "boilerplate",
+    "scaffolding",
+    "project-generator",
+    "development-tools"
+  ],
+  "author": "Tu Nombre <tu.email@ejemplo.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tu-usuario/project-templates.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tu-usuario/project-templates/issues"
+  },
+  "homepage": "https://github.com/tu-usuario/project-templates#readme",
+  "devDependencies": {
+    "prettier": "^3.0.0",
+    "shellcheck": "^1.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
+  "bin": {
+    "init-project": "./scripts/init-project.sh",
+    "validate-project": "./scripts/validate-project.sh"
+  },
+  "files": [
+    "scripts

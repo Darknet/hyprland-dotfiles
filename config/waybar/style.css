@@ -1,0 +1,275 @@
+/* Waybar Styles - Versión mejorada */
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "JetBrainsMono Nerd Font", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-weight: bold;
+    font-size: 14px;
+    min-height: 0;
+}
+
+window#waybar {
+    background: rgba(21, 18, 27, 0.9);
+    color: #cdd6f4;
+    transition-property: background-color;
+    transition-duration: 0.5s;
+    border-radius: 15px;
+    margin: 5px 5px 0px 5px;
+}
+
+window#waybar.hidden {
+    opacity: 0.2;
+}
+
+/* Tooltips */
+tooltip {
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 10px;
+    border-width: 2px;
+    border-style: solid;
+    border-color: #11111b;
+}
+
+tooltip label{
+    color: #cdd6f4;
+}
+
+/* Workspaces */
+#workspaces {
+    background: linear-gradient(180deg, #5e81ac, #81a1c1);
+    margin: 5px;
+    padding: 0px 1px;
+    border-radius: 15px;
+    border: 0px;
+    font-style: normal;
+    opacity: 0.8;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+#workspaces button {
+    padding: 0px 5px;
+    margin: 4px 3px;
+    border-radius: 15px;
+    border: 0px;
+    color: #ffffff;
+    background-color: transparent;
+    opacity: 0.7;
+    transition: all 0.3s ease-in-out;
+}
+
+#workspaces button.active {
+    color: #1a1826;
+    background: #a6adc8;
+    border-radius: 15px;
+    min-width: 40px;
+    opacity: 1.0;
+    box-shadow: rgba(0, 0, 0, 0.288) 2px 2px 5px 2px;
+}
+
+#workspaces button:hover {
+    color: #1a1826;
+    background: #a6adc8;
+    border-radius: 15px;
+    opacity: 0.8;
+}
+
+/* Window title */
+#window {
+    color: #cdd6f4;
+    font-weight: normal;
+    font-style: italic;
+}
+
+/* Clock */
+#clock {
+    color: #fab387;
+    background: linear-gradient(180deg, #f9e2af, #eba0ac);
+    border-radius: 15px;
+    padding: 5px 20px 5px 20px;
+    margin: 5px;
+    font-weight: bold;
+    box-shadow: rgba(0, 0, 0, 0.116) 2px 2px 5px 2px;
+}
+
+/* System info modules */
+#temperature,
+#cpu,
+#memory,
+#disk {
+    background: linear-gradient(180deg, #a6e3a1, #94e2d5);
+    color: #1a1826;
+    border-radius: 15px;
+    padding: 5px 10px;
+    margin: 5px 2px;
+    box-shadow: rgba(0, 0, 0, 0.116) 2px 2px 5px 2px;
+}
+
+#temperature.critical {
+    background: linear-gradient(180deg, #f38ba8, #eba0ac);
+    color: #ffffff;
+}
+
+/* Network and connectivity */
+#network,
+#bluetooth {
+    background: linear-gradient(180deg, #89b4fa, #74c7ec);
+    color: #1a1826;
+    border-radius: 15px;
+    padding: 5px 10px;
+    margin: 5px 2px;
+    box-shadow: rgba(0, 0, 0, 0.116) 2px 2px 5px 2px;
+}
+
+#network.disconnected {
+    background: linear-gradient(180deg, #f38ba8, #eba0ac);
+    color: #ffffff;
+}
+
+/* ... estilos existentes ... */
+
+/* VPN Module */
+#custom-vpn {
+    background: linear-gradient(45deg, @surface0, @surface1);
+    color: @text;
+    border-radius: 10px;
+    padding: 0 15px;
+    margin: 0 2px;
+    font-weight: bold;
+    border: 2px solid transparent;
+    transition: all 0.3s ease;
+}
+
+#custom-vpn.connected {
+    background: linear-gradient(45deg, @green, @teal);
+    color: @base;
+    border-color: @green;
+    animation: vpn-pulse 2s ease-in-out infinite alternate;
+}
+
+#custom-vpn.disconnected {
+    background: linear-gradient(45deg, @surface0, @surface1);
+    color: @subtext1;
+    border-color: @surface2;
+}
+
+#custom-vpn:hover {
+    background: linear-gradient(45deg, @blue, @sapphire);
+    color: @base;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes vpn-pulse {
+    0% {
+        box-shadow: 0 0 5px @green;
+    }
+    100% {
+        box-shadow: 0 0 15px @green, 0 0 25px @green;
+    }
+}
+
+/* Tooltip personalizado para VPN */
+tooltip#custom-vpn {
+    background: @base;
+    border: 2px solid @green;
+    border-radius: 8px;
+    color: @text;
+}
+
+/* Audio */
+#pulseaudio,
+#pulseaudio.microphone {
+    background: linear-gradient(180deg, #cba6f7, #f5c2e7);
+    color: #1a1826;
+    border-radius: 15px;
+    padding: 5px 10px;
+    margin: 5px 2px;
+    box-shadow: rgba(0, 0, 0, 0.116) 2px 2px 5px 2px;
+}
+
+#pulseaudio.muted {
+    background: linear-gradient(180deg, #6c7086, #9399b2);
+    color: #ffffff;
+}
+
+/* Battery */
+#battery {
+    background: linear-gradient(180deg, #a6e3a1, #94e2d5);
+    color: #1a1826;
+    border-radius: 15px;
+    padding: 5px 15px;
+    margin: 5px 2px;
+    box-shadow: rgba(0, 0, 0, 0.116) 2px 2px 5px 2px;
+}
+
+#battery.charging {
+    background: linear-gradient(180deg, #f9e2af, #fab387);
+}
+
+#battery.warning:not(.charging) {
+    background: linear-gradient(180deg, #fab387, #f38ba8);
+    color: #ffffff;
+}
+
+#battery.critical:not(.charging) {
+    background: linear-gradient(180deg, #f38ba8, #eba0ac);
+    color: #ffffff;
+    animation: blink 0.5s linear infinite alternate;
+}
+
+@keyframes blink {
+    to {
+        background-color: #f53c3c;
+        color: #1a1826;
+    }
+}
+
+/* Backlight */
+#backlight {
+    background: linear-gradient(180deg, #f9e2af, #fab387);
+    color: #1a1826;
+    border-radius: 15px;
+    padding: 5px 10px;
+    margin: 5px 2px;
+    box-shadow: rgba(0, 0, 0, 0.116) 2px 2px 5px 2px;
+}
+
+/* Tray */
+#tray {
+    background: linear-gradient(180deg, #cba6f7, #f5c2e7);
+    border-radius: 15px;
+    padding: 5px 10px;
+    margin: 5px 2px;
+    box-shadow: rgba(0, 0, 0, 0.116) 2px 2px 5px 2px;
+}
+
+#tray > .passive {
+    -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+    -gtk-icon-effect: highlight;
+    background-color: #f38ba8;
+}
+
+/* Custom modules */
+#custom-logo {
+    color: #89b4fa;
+    font-size: 20px;
+    margin: 5px 10px;
+    padding: 0px 10px;
+}
+
+#custom-power {
+    color: #f38ba8;
+    background: linear-gradient(180deg, #313244, #45475a);
+    border-radius: 15px;
+    padding: 5px 10px;
+    margin: 5px;
+    box-shadow: rgba(0, 0, 0, 0.116) 2px 2px 5px 2px;
+}
+
+#custom-power:hover {
+    background: linear-gradient(180deg, #f38ba8, #eba0ac);
+    color: #ffffff;
+}

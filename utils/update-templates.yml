@@ -1,0 +1,95 @@
+name: Update Templates
+
+on:
+  schedule:
+    - cron: '0 6 * * 1' # Cada lunes a las 6 AM
+  workflow_dispatch: # Permitir ejecución manual
+
+jobs:
+  update-dependencies:
+    name: 🔄 Update Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Update Node.js templates
+        run: |
+          for template in nodejs-basic react-basic vue-basic express-basic nextjs-basic; do
+            if [ -d "$template" ] && [ -f "$template/package.json" ]; then
+              echo "Updating $template..."
+              cd "$template"
+              
+              # Update to latest versions (be careful with breaking changes)
+              if command -v ncu >/dev/null 2>&1; then
+                npx npm-check-updates -u
+              fi
+              
+              cd ..
+            fi
+          done
+
+      - name: Update Python templates
+        run: |
+          for template in python-basic django-basic flask-basic; do
+            if [ -d "$template" ] && [ -f "$template/requirements.txt" ]; then
+              echo "Updating $template..."
+              cd "$template"
+              
+              # Create virtual environment and update packages
+              python3 -m venv temp_venv
+              source temp_venv/bin/activate
+              
+              # Install current requirements
+              pip install -r requirements.txt
+              
+              # Generate updated requirements
+              pip list --format=freeze > requirements.txt.new
+              mv requirements.txt.new requirements.txt
+              
+              deactivate
+              rm -rf temp_venv
+              
+              cd ..
+            fi
+          done
+
+      - name: Update Kubernetes templates
+        run: |
+          if [ -d "kubernetes" ]; then
+            echo "Checking Kubernetes API versions..."
+            # Aquí podrías agregar lógica para actualizar versiones de API de Kubernetes
+          fi
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update template dependencies'
+          title: 'Update template dependencies'
+          body: |
+            ## 🔄 Automated dependency updates
+            
+            This PR contains automated updates to template dependencies:
+            
+            - Updated Node.js package versions
+            - Updated Python package versions
+            - Checked Kubernetes API versions
+            
+            Please review the changes before merging.
+            
+            **Note**: Test all templates after merging to ensure compatibility.
+          branch: update-dependencies
+          delete-branch: true

@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: ServiceMonitor
+metadata:
+  name: mi-app-monitor
+  namespace: default
+  labels:
+    app: mi-app
+spec:
+  selector:
+    matchLabels:
+      app: mi-app
+  endpoints:
+  - port: management
+    path: /actuator/prometheus
+    interval: 30s
+    scrapeTimeout: 10s
+
+---
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: mi-app-alerts
+  namespace: default
+  labels:
+    app: mi-app
+spec:
+  groups:
+  - name: mi-app.rules
+    rules:
+    - alert: MiAppDown
+      expr: up{job="mi-app"} == 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Mi App está caído"
+        description: "Mi App ha estado caído por más de 1 minuto."
+    
+    - alert: MiAppHighCPU
+      expr: rate(container_cpu_usage_seconds_total{pod=~"mi-app-.*"}[5m]) > 0.8
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Alto uso de CPU en Mi App"
+        description: "Mi App está usando más del 80% de CPU por más de 5 minutos."
+    
+    - alert: MiAppHighMemory
+      expr: container_memory_usage_bytes{pod=~"mi-app-.*"} / container_spec_memory_limit_bytes > 0.9
+      for: 5m
+      labels:
+        severity: warning
+      annotations:
+        summary: "Alto uso de memoria en Mi App"
+        description: "Mi App está usando más del 90% de memoria por más de 5 minutos."
+    
+    - alert: MiAppHighErrorRate
+      expr: rate(http_requests_total{job="mi-app",status=~"5.."}[5m]) / rate(http_requests_total{job="mi-app"}[5m]) > 0.1
+      for: 2m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Alta tasa de errores en Mi App"
+        description: "Mi App tiene más del 10% de errores HTTP 5xx por más de 2 minutos."

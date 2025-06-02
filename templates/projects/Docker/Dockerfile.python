@@ -1,0 +1,53 @@
+# Multi-stage build para Python
+FROM python:3.11-slim AS builder
+
+# Variables de entorno
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+# Instalar dependencias del sistema
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copiar archivos de dependencias
+COPY requirements.txt .
+
+# Instalar dependencias Python
+RUN pip install --user -r requirements.txt
+
+# Etapa de producción
+FROM python:3.11-slim AS production
+
+# Variables de entorno
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PATH=/home/appuser/.local/bin:$PATH
+
+# Crear usuario no-root
+RUN useradd --create-home --shell /bin/bash appuser
+
+WORKDIR /app
+
+# Copiar dependencias desde builder
+COPY --from=builder --chown=appuser:appuser /root/.local /home/appuser/.local
+
+# Copiar código de la aplicación
+COPY --chown=appuser:appuser . .
+
+# Cambiar a usuario no-root
+USER appuser
+
+# Exponer puerto
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+    CMD python -c "import requests; requests.get('http://localhost:8000/health', timeout=2)"
+
+# Comando de inicio
+CMD ["python", "main.py"]
