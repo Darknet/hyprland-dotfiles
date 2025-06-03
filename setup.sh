@@ -1,7 +1,6 @@
 
 ## Script de configuración principal mejorado
 
-```bash:setup.sh
 #!/bin/bash
 
 # Hyprland Dotfiles Setup Script
